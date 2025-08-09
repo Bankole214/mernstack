@@ -1,4 +1,0 @@
-{
-  "watch": ["index.js", "controllers", "routes", "models", "config"],
-  "ignore": ["assets/uploads", "node_modules", "logs"]
-}
