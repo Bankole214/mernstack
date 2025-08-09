@@ -59,7 +59,7 @@ console.log("✅ App initialized, NODE_ENV:", process.env.NODE_ENV);
 
 console.log("✅ Setting up JSON middleware...");
 app.use(express.json());
-
+app.use("/assets", express.static(path.join(process.cwd(), "assets")));
 console.log("✅ About to mount product routes...");
 app.use("/api/products", productRoutes);
 console.log("✅ Product routes mounted successfully");

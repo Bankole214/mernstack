@@ -8,45 +8,59 @@ import {
   Button,
   useToast,
 } from "@chakra-ui/react";
-// import React from "react";
-import { useState } from "react";
+import { useState,useRef } from "react";
 import { useProductStore } from "../store/product.js";
 
 function CreatePage() {
   const [newProduct, setNewProduct] = useState({
     name: "",
     price: "",
-    image: "",
+    image: null, // store file, not string
   });
+
   const { createProduct } = useProductStore();
   const toast = useToast();
+  const fileInputRef = useRef(null); // ref for file input
+
+  // Simple validation check
+  const isFormValid =
+    newProduct.name.trim() !== "" &&
+    newProduct.price !== "" &&
+    !isNaN(newProduct.price) &&
+    Number(newProduct.price) > 0 &&
+    newProduct.image !== null;
 
   const handleAddProduct = async () => {
-    const { success, message } = await createProduct(newProduct);
-    if (!success) {
-      toast({
-        title: "Error",
-        description: message,
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    } else
-      toast({
-        title: "Success",
-        description: message,
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
+    if (!isFormValid) return; // Just a safeguard
+
+    const formData = new FormData();
+    formData.append("name", newProduct.name);
+    formData.append("price", newProduct.price);
+    formData.append("image", newProduct.image);
+
+    const { success, message } = await createProduct(formData); // send FormData
+
+    toast({
+      title: success ? "Success" : "Error",
+      description: message,
+      status: success ? "success" : "error",
+      duration: 3000,
+      isClosable: true,
+    });
+
     if (success) {
       setNewProduct({
         name: "",
         price: "",
-        image: "",
+        image: null,
       });
     }
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null; // clear file input
+    }
   };
+
   return (
     <Container maxW={"container.sm"}>
       <VStack spacing={8}>
@@ -63,31 +77,36 @@ function CreatePage() {
             <Input
               type="text"
               placeholder="Product Name"
-              name="name"
               value={newProduct.name}
               onChange={(e) =>
                 setNewProduct({ ...newProduct, name: e.target.value })
               }
             />
             <Input
-              type="number"
+              type="text"
               placeholder="Product Price"
-              name="price"
               value={newProduct.price}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, price: e.target.value })
-              }
+              onChange={(e) => {
+                const val = e.target.value;
+                // Only allow digits and optionally a single dot for decimals
+                if (/^\d*\.?\d*$/.test(val)) {
+                  setNewProduct({ ...newProduct, price: val });
+                }
+              }}
             />
             <Input
-              type="text"
-              placeholder="Product Image"
-              name="image"
-              value={newProduct.image}
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
               onChange={(e) =>
-                setNewProduct({ ...newProduct, image: e.target.value })
+                setNewProduct({ ...newProduct, image: e.target.files[0] })
               }
             />
-            <Button colorScheme={"blue"} onClick={handleAddProduct} w={"full"}>
+            <Button
+              colorScheme={"blue"}
+              onClick={handleAddProduct}
+              w={"full"}
+              isDisabled={!isFormValid}>
               Add Product
             </Button>
           </VStack>

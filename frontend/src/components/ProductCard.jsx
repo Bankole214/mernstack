@@ -60,27 +60,60 @@ function ProductCard({ product }) {
         isClosable: true,
       });
   };
-    const handleUpdateProduct = async(pid, updatedProduct) => {
-        const {success, message } = await updateProduct(pid, updatedProduct)
-        onClose()
-        if (!success) {
-            toast({
-                title: "Error",
-                description: message,
-                status: "error",
-                duration: 3000,
-                isClosable: true,
-            })
-        } else {
-            toast({
-                title: "Success",
-                description: "Product updated successfully",
-                status: "success",
-                duration: 3000,
-                isClosable: true,
-            })
-        }
-    }
+    // const handleUpdateProduct = async(pid, updatedProduct) => {
+    //     const {success, message } = await updateProduct(pid, updatedProduct)
+    //     onClose()
+    //     if (!success) {
+    //         toast({
+    //             title: "Error",
+    //             description: message,
+    //             status: "error",
+    //             duration: 3000,
+    //             isClosable: true,
+    //         })
+    //     } else {
+    //         toast({
+    //             title: "Success",
+    //             description: "Product updated successfully",
+    //             status: "success",
+    //             duration: 3000,
+    //             isClosable: true,
+    //         })
+    //     }
+  // }
+  const handleUpdateProduct = async (pid, updatedProduct) => {
+  const formData = new FormData();
+  formData.append("name", updatedProduct.name);
+  formData.append("price", updatedProduct.price);
+
+  // Append image file only if it's a File object (not a URL string)
+  if (updatedProduct.image && updatedProduct.image instanceof File) {
+    formData.append("image", updatedProduct.image);
+  }
+
+  const { success, message } = await updateProduct(pid, formData);
+
+  onClose();
+
+  if (!success) {
+    toast({
+      title: "Error",
+      description: message,
+      status: "error",
+      duration: 3000,
+      isClosable: true,
+    });
+  } else {
+    toast({
+      title: "Success",
+      description: "Product updated successfully",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+    });
+  }
+};
+
   return (
     <Box
       shadow={"lg"}
@@ -90,7 +123,9 @@ function ProductCard({ product }) {
       _hover={{ transform: "translateY(-5px)", shadow: "xl" }}
       bg={bg}>
       <Image
-        src={product.image}
+        src={`http://localhost:5000${product.image}`}
+        // src={"http://localhost:5000" + product.image}
+        // src="http://localhost:5000" {product.image}
         alt={product.name}
         h={"48"}
         w={"full"}
@@ -151,7 +186,7 @@ function ProductCard({ product }) {
                   })
                 }
               />
-              <Input
+              {/* <Input
                 type="text"
                 placeholder="Product Image url"
                 name="image"
@@ -160,6 +195,16 @@ function ProductCard({ product }) {
                   setUpdatedProduct({
                     ...updatedProduct,
                     image: e.target.value,
+                  })
+                }
+              /> */}
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  setUpdatedProduct({
+                    ...updatedProduct,
+                    image: e.target.files[0],
                   })
                 }
               />
