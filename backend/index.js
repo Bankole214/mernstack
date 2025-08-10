@@ -1,56 +1,19 @@
-// import express from "express";
-// import dotenv from "dotenv";
-// import path from "path";
-// import { connectDB } from "./config/db.js";
-// import productRoutes from "./routes/product.route.js";
-
-// dotenv.config();
-// const PORT = process.env.PORT || 5000;
-// const app = express();
-// const __dirname = path.resolve();
-
-// // MIDDLEWARE US TO ACCEPT JSON DATA IN THE REQ.BODY
-// app.use(express.json());
-
-// app.use("/api/products", productRoutes);
-
-// if (process.env.NODE_ENV === "production") {
-//   app.use(express.static(path.join(__dirname, "/frontend/dist")));
-//   app.get("/*", (req, res) => {
-//     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
-//   });
-// }
-
-// // console.log(process.env.MONGO_URI);
-// connectDB()
-//   .then(() => {
-//     app.listen(PORT, () => {
-//       console.log("Server is running on port 5000");
-//     });
-//   })
-//   .catch((err) => {
-//     console.error("Database connection failed:", err);
-//     process.exit(1);
-//     // res.send(err);
-//   });
-
-
-
-// app.listen(PORT, () => {
-//     connectDB();
-//   console.log("Server is running on port 5000");
-// });
-
-
-
-
 import express from "express";
 import dotenv from "dotenv";
 import path from "path";
 import { connectDB } from "./config/db.js";
 import productRoutes from "./routes/product.route.js";
 
-dotenv.config();
+
+
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname1 = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname1, ".env") });
+// dotenv.config();
+// dotenv.config({ path: "./backend/.env" });
 const PORT = process.env.PORT || 5000;
 const app = express();
 const __dirname = path.resolve();
@@ -58,6 +21,7 @@ const __dirname = path.resolve();
 console.log("✅ App initialized, NODE_ENV:", process.env.NODE_ENV);
 
 console.log("✅ Setting up JSON middleware...");
+app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 app.use(express.json());
 app.use("/assets", express.static(path.join(process.cwd(), "assets")));
 console.log("✅ About to mount product routes...");
